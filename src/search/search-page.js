@@ -18,33 +18,6 @@ export default class SearchPage extends Component {
     this.onInputChange = this.onInputChange.bind(this);
   }
 
-  componentDidMount() {
-    axios
-      .get(
-        `https://api.themoviedb.org/3/genre/movie/list?api_key=e06126d126e95840b8906163c9eecc91&language=en-US`
-      )
-      .then(
-        (result) => {
-          console.log(result);
-          let genres = result.data.genres;
-          this.setState({
-            ...this.state,
-            availableGenres: genres.map((genre) => {
-              return {
-                label: genre.name,
-                value: genre.id,
-              };
-            }),
-          }, () => {
-            console.log(this.state)
-          });
-        },
-        (error) => {
-          console.log(error);
-        }
-      );
-  }
-
   onInputChange(event) {
     if (event.target.value.length > 2) {
       this.setState({ query: event.target.value }, () => {
@@ -64,6 +37,42 @@ export default class SearchPage extends Component {
       this.setState({ query: event.target.value });
     }
   }
+
+  fetchGenres() {
+    return new Promise((resolve, reject) => {
+      if (this.state.availableGenres.length > 0) {
+        resolve(this.state.availableGenres)
+      } else {
+        axios
+        .get(
+          `https://api.themoviedb.org/3/genre/movie/list?api_key=e06126d126e95840b8906163c9eecc91&language=en-US`
+        )
+        .then(
+          (result) => {
+            console.log(result);
+            let genres = result.data.genres;
+            this.setState({
+              ...this.state,
+              availableGenres: genres.map((genre) => {
+                return {
+                  label: genre.name,
+                  value: genre.id,
+                };
+              }),
+            }, () => {
+              console.log(this.state)
+              resolve(this.state.availableGenres)
+            });
+          },
+          (error) => {
+            console.log(error);
+            reject()
+          }
+        );
+        }
+    })
+  }
+  
   render() {
     return (
       <div className="page">
@@ -73,7 +82,7 @@ export default class SearchPage extends Component {
           id="search"
           onChange={this.onInputChange}
         />
-        {<SelectComponent listItems={this.state.availableGenres} />}
+        {<SelectComponent fetchResources={this.fetchGenres} />}
 
         <div className="results-panel">
           {this.state.results.forEach((element) => {

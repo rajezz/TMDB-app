@@ -1,14 +1,16 @@
 import React, { Component } from "react";
-import './select.css'
+import "./select.css";
 
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 class SelectComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
       buttonState: false,
+      fetching: true,
       selectedText: "Nothing selected",
-      listItems: this.props.listItems,
+      listItems: [],
       top: null,
       left: null,
       width: null,
@@ -30,7 +32,7 @@ class SelectComponent extends Component {
       });
     } else {
       this.setState({
-          ...this.state,
+        ...this.state,
         buttonState: !this.state.buttonState,
         top: event.target.offsetTop,
         left: event.target.offsetLeft,
@@ -41,11 +43,59 @@ class SelectComponent extends Component {
   }
   getPostionStyle() {
     return {
-        top: (this.state.top + this.state.height + 10) + "px",
-        left: this.state.left + "px",
-        width: this.state.width + "px",
-        height: "200px",
-    }
+      top: this.state.top + this.state.height + 10 + "px",
+      left: this.state.left + "px",
+      width: this.state.width + "px",
+      height: "200px",
+    };
+  }
+
+  fetchListItems() {
+    this.props.fetchResources().then(
+      (result) => {
+        this.setState(
+          {
+            ...this.state,
+            listItems: result,
+          },
+          () => {
+            this.stopLoading()
+            return this.state.listItems.map((item) => {
+              <li
+                id={item.value}
+                className={() =>
+                  this.state.selectedText == item.label
+                    ? "list-item selected"
+                    : "list-item"
+                }
+              >
+                {item.label}
+              </li>;
+            });
+          }
+        );
+      },
+      (error) => {
+        this.stopLoading()
+        return (
+          <li id="no-value" className="list-item">
+            No Items
+          </li>
+        );
+      }
+    );
+  }
+  
+  startLoading() {
+    return <div
+      className="loading-panel"
+    >
+      <CircularProgress />
+    </div>
+  }
+
+  stopLoading() {
+    this.setState({ loading: false });
   }
 
   createList() {
@@ -53,16 +103,10 @@ class SelectComponent extends Component {
       //console.log(this.buttonRef)
       return (
         <div className="select-panel" style={this.getPostionStyle()}>
-            <ul>
-                {this.state.listItems.forEach(item => {
-                    <li
-                        id={item.value}
-                        className={() => this.state.selectedText == item.label ? "list-item selected" : "list-item"}
-                    >
-                        {item.label}
-                    </li>
-                })}
-            </ul>
+          {this.state.fetching ? this.startLoading() : "" }
+          <ul>
+            {this.fetchListItems()}
+          </ul>
         </div>
       );
     }
