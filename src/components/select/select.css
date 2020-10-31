@@ -1,0 +1,21 @@
+.select-panel {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #dedede;
+    border-radius: 4px;
+    box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.31) 0px 0px 1px;
+}
+.field {
+    padding: 7px 20px;
+    border: 1px solid #dedede;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: white;
+}
+.field:focus, .field:active {
+    outline: none;
+}
+.field:hover {
+    transition: all 0.2s ease;
+    box-shadow: rgba(9, 30, 66, 0.25) 0px 4px 8px -2px, rgba(9, 30, 66, 0.31) 0px 0px 1px;
+}
